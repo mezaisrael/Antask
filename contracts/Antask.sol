@@ -3,45 +3,99 @@ pragma solidity ^0.5.8;
 import "./Antask-Interface.sol";
 
 contract Antask is AntaskInterFace {
+    enum TaskState { Open, InProgress, Completed }
+    enum StarRating { One, Two, Three, Four, Five }
+
     struct Task {
         address owner;
         bytes32 description;
-        // uint256 id;
         uint256 reward;
         uint256 timeToComplete;
         uint256 taskStartTime;
+        TaskState state;
+        address[] applied;
+        address assignedUser; //person doing the job this can be an array in a future version
     }
 
-    // maps id of task task
-    // mapping (uint256 => Task) public availableTask;
+    struct User {
+        address addr;
+        StarRating rating;
+        uint256[] taskPosted;
+    }
 
-    Task[] public availableTask;
-    //map task id to array of address that have applied for the task
-    mapping (uint => address[]) appliedForTask;
+    Task[] public allTask;
 
+    mapping (address => User) public Users;
 
     constructor() public {
 
     }
 
     function createTask(bytes32 description, uint256 reward) external payable {
-        // Task memory newTask = Task(msg.sender, description, reward, 0, 0);
-        availableTask.push(Task(msg.sender, description, reward, 0, 0));
+        Task memory newTask = Task(
+            msg.sender,
+            description,
+            reward,
+            0,
+            0,
+            TaskState.Open,
+            new address[](0),
+            address(0)
+        );
+
+        uint taskId = allTask.push(newTask) -1;
+        Users[msg.sender].taskPosted.push(taskId);
     }
 
     function createTask(bytes32 description, uint256 reward, uint256 timeToComplete) external payable {
-        Task memory newTask = Task(msg.sender, description, reward, timeToComplete, 0);
-        availableTask.push(newTask);
+        Task memory newTask = Task(
+            msg.sender,
+            description,
+            reward,
+            timeToComplete,
+            0,
+            TaskState.Open,
+            new address[](0),
+            address(0)
+        );
+
+        uint taskId = allTask.push(newTask) -1;
+        Users[msg.sender].taskPosted.push(taskId);
     }
 
     function getAvailabelTaskCount() external view returns(uint){
-        return availableTask.length;
+        return allTask.length;
+    }
+
+    function getApplicantsForTask(uint taskId) external view returns(address[] memory) {
+        return allTask[taskId].applied;
     }
 
     function applyForTasks(uint taskId) external{
+        require (
+            allTask[taskId].state == TaskState.Open,
+            "Task status should be open ");
 
+
+        allTask[taskId].applied.push(msg.sender);
     }
 
+    function hireUserForTask(address userAddr, uint taskId) external {
+        require (
+            allTask[taskId].state == TaskState.Open,
+            "Task must be open for users to apply"
+        );
+        Task storage task = allTask[taskId];
+        //mark the task in progress. In the future maybe this should
+        // be done manually by the contract caller since I could add the
+        // option to have multiple people working on one task
+        task.state = TaskState.InProgress;
+        task.assignedUser = userAddr;
+    }
+
+
+    // when the worker has completed a task completed this
+    // call this function to approve the task and release the reward
     function approveTask (address hiredUser) external {
 
     }
@@ -56,10 +110,6 @@ contract Antask is AntaskInterFace {
     }
 
     function rateUser(address user, uint rating, bytes32 comments) external {
-
-    }
-
-    function hireUser (address user) external {
 
     }
 

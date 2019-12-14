@@ -10,8 +10,13 @@ interface AntaskInterFace {
 
     function getAvailabelTaskCount() external view returns(uint) ;
 
+    function getApplicantsForTask(uint taskId) external view returns(address[] memory);
+
     //users can choose a task to complete
     function applyForTasks(uint taskId) external;
+
+    // call to pick from list of applicants a user to complete a task
+    function hireUserForTask(address user, uint taskId) external;
 
     function approveTask(address hiredUser) external;
 
@@ -25,9 +30,6 @@ interface AntaskInterFace {
     // must have done a done business with @param user. It should also be
     // between 0 and 5
     function rateUser(address user, uint rating, bytes32 comments) external;
-
-    // call to pick from list of applicants a user to complete a task
-    function hireUser(address user) external;
 
     function updatePayRate(uint256 taskId, uint256 newRate) external;
 }
