@@ -4,7 +4,7 @@ import "./Antask-Interface.sol";
 
 contract Antask is AntaskInterFace {
 
-    enum TaskState { Open, InProgress, Completed }
+    enum TaskState { Open, InProgress, Finished, Approved }
     enum StarRating { One, Two, Three, Four, Five }
 
     struct Task {
@@ -106,10 +106,10 @@ contract Antask is AntaskInterFace {
             'status of task should be in progress'
         );
 
-        task.state = TaskState.Completed;
+        task.state = TaskState.Finished;
     }
 
-    // when the worker has completed a task completed this
+    // when the worker has Finished a task Finished this
     // call this function to approve the task and release the reward
     function approveTask (address hiredUser) external {
 
