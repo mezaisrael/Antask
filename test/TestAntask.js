@@ -54,5 +54,6 @@ contract('Antask', async (accounts) => {
 
         let task = await AntaskInstance.allTask.call(0)
 
+        assert.equal(task['state'].toString(), 1, 'status should be inProgress(1)')
     })
 })

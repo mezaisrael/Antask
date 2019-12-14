@@ -3,6 +3,7 @@ pragma solidity ^0.5.8;
 import "./Antask-Interface.sol";
 
 contract Antask is AntaskInterFace {
+
     enum TaskState { Open, InProgress, Completed }
     enum StarRating { One, Two, Three, Four, Five }
 
@@ -18,24 +19,22 @@ contract Antask is AntaskInterFace {
     }
 
     struct User {
-        address addr;
         StarRating rating;
         uint256[] taskPosted;
     }
 
     Task[] public allTask;
 
+    // map an address to a User
     mapping (address => User) public Users;
 
-    constructor() public {
-
-    }
+    event complitedTask(address worker, address owner, uint taskId);
 
     function createTask(bytes32 description, uint256 reward) external payable {
         Task memory newTask = Task(
             msg.sender,
             description,
-            reward,
+            msg.value,
             0,
             0,
             TaskState.Open,
@@ -51,7 +50,7 @@ contract Antask is AntaskInterFace {
         Task memory newTask = Task(
             msg.sender,
             description,
-            reward,
+            msg.value,
             timeToComplete,
             0,
             TaskState.Open,
@@ -91,8 +90,11 @@ contract Antask is AntaskInterFace {
         // option to have multiple people working on one task
         task.state = TaskState.InProgress;
         task.assignedUser = userAddr;
+        task.taskStartTime = now;
     }
 
+    function markTaksComplete(uint256 taskId) external {
+    }
 
     // when the worker has completed a task completed this
     // call this function to approve the task and release the reward
@@ -103,10 +105,6 @@ contract Antask is AntaskInterFace {
 
     function addSkills(bytes32 skill) external{
 
-    }
-
-    function markTaksComplete(uint256 taskId) external returns(bool res) {
-        return false;
     }
 
     function rateUser(address user, uint rating, bytes32 comments) external {

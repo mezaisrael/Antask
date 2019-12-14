@@ -1,10 +1,9 @@
 pragma solidity ^0.5.8;
 
 interface AntaskInterFace {
-    function createTask(bytes32 Description, uint256 reward) external payable;
+    function createTask(bytes32 Description) external payable;
     function createTask(
         bytes32 Description,
-        uint256 reward,
         uint256 timeToComplete
     ) external payable;
 
@@ -18,13 +17,13 @@ interface AntaskInterFace {
     // call to pick from list of applicants a user to complete a task
     function hireUserForTask(address user, uint taskId) external;
 
+    // worker should call this when he has completed the task
+    function markTaksComplete(uint256 taskId) external;
+
     function approveTask(address hiredUser) external;
 
     // users should only add their top skill to avoid gas fees
     function addSkills(bytes32 skill) external;
-
-    // worker should call this when he has completed the task
-    function markTaksComplete(uint256 taskId) external returns(bool res);
 
     // will probably need a modifer requiring that the caller of this function
     // must have done a done business with @param user. It should also be
