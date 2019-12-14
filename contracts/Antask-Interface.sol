@@ -20,15 +20,15 @@ interface AntaskInterFace {
     // worker should call this when he has completed the task
     function markTaksComplete(uint256 taskId) external;
 
-    function approveTask(address hiredUser) external;
+    function approveTask(uint taskId, address payable hiredUser) external;
 
-    // users should only add their top skill to avoid gas fees
-    function addSkills(bytes32 skill) external;
+    // // users should only add their top skill to avoid gas fees
+    // function addSkills(bytes32 skill) external;
 
-    // will probably need a modifer requiring that the caller of this function
-    // must have done a done business with @param user. It should also be
-    // between 0 and 5
-    function rateUser(address user, uint rating, bytes32 comments) external;
+    // // will probably need a modifer requiring that the caller of this function
+    // // must have done a done business with @param user. It should also be
+    // // between 0 and 5
+    // function rateUser(address user, uint rating, bytes32 comments) external;
 
-    function updatePayRate(uint256 taskId, uint256 newRate) external;
+    // function updatePayRate(uint256 taskId, uint256 newRate) external;
 }

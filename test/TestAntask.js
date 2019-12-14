@@ -5,7 +5,7 @@ contract('Antask', async (accounts) => {
     user2 = accounts[1]
     user3 = accounts[2]
 
-    let expectWeiReward = 10000000000000 //the reward for the task
+    let expectWeiReward = 100000000000000 //the reward for the task
     let expectTimeToComplete = 1000
     let expectTaskDes = 'pick up dry cleaner'
 
@@ -75,5 +75,16 @@ contract('Antask', async (accounts) => {
         assert.equal(task['state'], 2,'state should be completed (2)')
     })
 
+    it('can approve task', async () => {
+        let balance = await web3.eth.getBalance(user2)
+        await AntaskInstance.approveTask(0, user2, {from: user1})
+        let balanceAfter = await web3.eth.getBalance(user2)
+
+        assert.isAbove(
+            Number(balanceAfter),
+            Number(balance),
+            'balance should be greated after completing a task'
+        );
+    })
 
 })

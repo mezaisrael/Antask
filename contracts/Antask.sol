@@ -21,12 +21,13 @@ contract Antask is AntaskInterFace {
     struct User {
         StarRating rating;
         uint256[] taskPosted;
+        uint256[] taskCompleted;
     }
 
     Task[] public allTask;
 
     // map an address to a User
-    mapping (address => User) public Users;
+    mapping (address => User) public users;
 
     event complitedTask(address worker, address owner, uint taskId);
 
@@ -43,7 +44,7 @@ contract Antask is AntaskInterFace {
         );
 
         uint taskId = allTask.push(newTask) -1;
-        Users[msg.sender].taskPosted.push(taskId);
+        users[msg.sender].taskPosted.push(taskId);
     }
 
     function createTask(bytes32 description, uint256 timeToComplete) external payable {
@@ -59,7 +60,7 @@ contract Antask is AntaskInterFace {
         );
 
         uint taskId = allTask.push(newTask) -1;
-        Users[msg.sender].taskPosted.push(taskId);
+        users[msg.sender].taskPosted.push(taskId);
     }
 
     function getAvailabelTaskCount() external view returns(uint){
@@ -111,22 +112,33 @@ contract Antask is AntaskInterFace {
 
     // when the worker has Finished a task Finished this
     // call this function to approve the task and release the reward
-    function approveTask (address hiredUser) external {
+    function approveTask (uint taskId, address payable hiredUser) external {
+        Task storage task = allTask[taskId];
+        require(
+            task.owner == msg.sender,
+            "only owner of task can aporve of its completion"
+        );
 
+        allTask[taskId].state = TaskState.Approved;
+
+        users[hiredUser].taskCompleted.push(taskId);
+
+        //this contract can now send the reward
+        hiredUser.transfer(task.reward);
     }
 
 
-    function addSkills(bytes32 skill) external{
+    // function addSkills(bytes32 skill) external{
 
-    }
+    // }
 
-    function rateUser(address user, uint rating, bytes32 comments) external {
+    // function rateUser(address user, uint rating, bytes32 comments) external {
 
-    }
+    // }
 
-    function updatePayRate (uint256 taskId, uint256 newRate) external {
+    // function updatePayRate (uint256 taskId, uint256 newRate) external {
 
-    }
+    // }
 
     function () payable external{
 
