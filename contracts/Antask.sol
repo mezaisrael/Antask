@@ -30,7 +30,7 @@ contract Antask is AntaskInterFace {
 
     event complitedTask(address worker, address owner, uint taskId);
 
-    function createTask(bytes32 description, uint256 reward) external payable {
+    function createTask(bytes32 description) external payable {
         Task memory newTask = Task(
             msg.sender,
             description,
@@ -46,7 +46,7 @@ contract Antask is AntaskInterFace {
         Users[msg.sender].taskPosted.push(taskId);
     }
 
-    function createTask(bytes32 description, uint256 reward, uint256 timeToComplete) external payable {
+    function createTask(bytes32 description, uint256 timeToComplete) external payable {
         Task memory newTask = Task(
             msg.sender,
             description,
@@ -94,6 +94,19 @@ contract Antask is AntaskInterFace {
     }
 
     function markTaksComplete(uint256 taskId) external {
+        Task storage task = allTask[taskId];
+
+        require(
+            task.assignedUser == msg.sender,
+            'only user working on the task can mark the task complete'
+        );
+
+        require(
+            task.state == TaskState.InProgress,
+            'status of task should be in progress'
+        );
+
+        task.state = TaskState.Completed;
     }
 
     // when the worker has completed a task completed this
@@ -118,7 +131,5 @@ contract Antask is AntaskInterFace {
     function () payable external{
 
     }
-
-
 
 }

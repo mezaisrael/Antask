@@ -5,13 +5,18 @@ contract('Antask', async (accounts) => {
     user2 = accounts[1]
     user3 = accounts[2]
 
+    let expectWeiReward = 10000000000000 //the reward for the task
+    let expectTimeToComplete = 1000
+    let expectTaskDes = 'pick up dry cleaner'
+
     it('should add new task', async () => {
         AntaskInstance = await Antask.deployed()
 
-        let expectedDescription = 'pick up dry cleaner'
-        let descrip = web3.utils.fromUtf8(expectedDescription)
+        let descrip = web3.utils.fromUtf8(expectTaskDes)
 
-        await AntaskInstance.methods['createTask(bytes32,uint256,uint256)'](descrip, 10, 1000)
+        await AntaskInstance.methods['createTask(bytes32,uint256)']
+        (descrip, expectTimeToComplete, {from: user1, value: expectWeiReward})
+
         let taskCount = await AntaskInstance.getAvailabelTaskCount.call()
         let expected = 1
 
@@ -22,8 +27,8 @@ contract('Antask', async (accounts) => {
 
         assert.equal(
             actualTaskDes,
-            expectedDescription,
-            `description should be "${expectedDescription}"`
+            expectTaskDes,
+            `description should be "${expectTaskDes}"`
         )
         assert.equal(task['state'].toString(), 0, 'status should be open(0)')
     })
@@ -33,8 +38,8 @@ contract('Antask', async (accounts) => {
         let actualReward = task.reward.toString()
         let actualTimeToComplete = task.timeToComplete.toString()
 
-        assert.equal(actualReward, 10, "Incorrect reward")
-        assert.equal(actualTimeToComplete, 1000, "Incorrect alloted time")
+        assert.equal(actualReward, expectWeiReward, "Incorrect reward")
+        assert.equal(actualTimeToComplete, expectTimeToComplete, "Incorrect alloted time")
     })
 
     it('can apply for task', async () => {
@@ -49,11 +54,26 @@ contract('Antask', async (accounts) => {
     it('can hire from list of applicants', async () => {
         await AntaskInstance.applyForTasks(0, {from: user3})
 
-        //user1 hires user2 to complete his task
+        // user1 hires user2 to complete his task
         await AntaskInstance.hireUserForTask(user2, 0)
 
         let task = await AntaskInstance.allTask.call(0)
 
         assert.equal(task['state'].toString(), 1, 'status should be inProgress(1)')
     })
+
+    it('can complete task if user is assgined to it', async () => {
+        try{
+            //user that are not doing a the task cant mark it as completed
+            let a = await AntaskInstance.markTaksComplete(0, {from: user3})
+            assert.fail('this should not be able to run')
+        } catch(error) {
+            assert.isOk("throws error")
+        }
+        await AntaskInstance.markTaksComplete(0, {from: user2})
+        let task = await AntaskInstance.allTask.call(0)
+        assert.equal(task['state'], 2,'state should be completed (2)')
+    })
+
+
 })
